@@ -12,7 +12,23 @@ public class vmBasic {
 
     }
     public void init(List<String> ST, List<String> PT) {
-
+        for(int i = 0; i < ST.size()-3; i++){
+            int s = Integer.parseInt(ST.get(i));
+            int z = Integer.parseInt(ST.get(i+1));
+            int f = Integer.parseInt(ST.get(i+2));
+            //PM[2s] = z (segment size)
+            PM.add(2*s, z);
+            //PM[2s+1] = f (frame size)
+            PM.add((2*s)+1, f);
+        }
+        for(int i = 0; i< PT.size()-3; i++){
+            int s = Integer.parseInt(PT.get(i));
+            int p = Integer.parseInt(PT.get(i+1));
+            int f = Integer.parseInt(PT.get(i+2));
+            //PM[PM[2s+1]*512+p] = f
+            int location = (PM.get((2*s)+1)*512)+p;
+            PM.add((PM.get((2*s)+1)*512)+p, f);
+        }
     }
 
     public void vaTranslate(int va){
@@ -22,15 +38,16 @@ public class vmBasic {
         int pw = getPW(va);
      }
     public int getS(int va){
-        return va;
+        return va >>> 18;
     }
     public int getW(int va){
-        return va;
+        return va & 511;
     }
     public int getP(int va){
-        return va;
+        va = va >>> 9;
+        return va & 511;
     }
     public int getPW(int va){
-        return va;
+        return va & 262143;
     }
 }
