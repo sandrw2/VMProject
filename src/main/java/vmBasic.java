@@ -40,18 +40,18 @@ public class vmBasic {
         int ST_size = PM.get(2*s);
         if(pw >= ST_size){
             return -1;
-        }else{
-            //ST frame  = PM[2s+1]
-            int ST_frame = PM.get((2*s)+1);
-            //ST address = PM[2s+1]*512
-            int ST_address = ST_frame*512;
-            //page frame = PM[PM[2s+1]*512+p]
-            int page_frame = PM.get(ST_address+p);
-            //page address = PM[PM[2s+1]*512+p]*512
-            int page_address = PM.get(page_frame*512);
-            //PA = PM[PM[2s+1]*512+p]*512 + w
-            return page_address + w;
         }
+        //ST frame  = PM[2s+1]
+        int ST_frame = PM.get((2*s)+1);
+        //ST address = PM[2s+1]*512
+        int ST_address = ST_frame*512;
+        //page frame = PM[PM[2s+1]*512+p]
+        int page_frame = PM.get(ST_address+p);
+        //page address = PM[PM[2s+1]*512+p]*512
+        int page_address = PM.get(page_frame*512);
+        //PA = PM[PM[2s+1]*512+p]*512 + w
+        return page_address + w;
+
      }
     public int getS(int va){
         return va >>> 18;
