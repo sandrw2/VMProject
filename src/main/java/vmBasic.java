@@ -5,7 +5,7 @@ import java.util.List;
 
 public class vmBasic {
     static final boolean DEBUG = true;
-            //PM size = 524,288 integers
+    //PM size = 524,288 integers
     Integer[] PM;
     public vmBasic(){
         PM = new Integer[524288];
@@ -19,7 +19,7 @@ public class vmBasic {
             int f = Integer.parseInt(ST.get(i+2));
             //PM[2s] = z (segment size)
             PM[2*s] = z;
-            //PM[2s+1] = f (frame size)
+            //PM[2s+1] = f (frame location)
             PM[2*s+1] = f;
             if(DEBUG){
                 String message = String.format("SegmentSize: %d, FrameSize: %d", PM[2*s], PM[2*s+1]);
@@ -31,8 +31,8 @@ public class vmBasic {
             int p = Integer.parseInt(PT.get(i+1));
             int f = Integer.parseInt(PT.get(i+2));
             //PM[PM[2s+1]*512+p] = f
-            int location = PM[2*s+1]*512+p;
-            PM[location] = f;
+            int pageEntryAddress = PM[2*s+1]*512+p;
+            PM[pageEntryAddress] = f;
             if(DEBUG){
                 String message = String.format("PageFrame: %d", PM[PM[2*s+1]*512+p]);
                 System.out.println(message);
