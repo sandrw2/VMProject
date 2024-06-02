@@ -7,16 +7,26 @@ import java.util.List;
 
 public class vmDemandPaging {
     static final boolean DEBUG = true;
-    //PM size = 524,288 integers
+    public static final int PM_SIZE = 524288;
+    public static final int TOTAL_BLOCKS = 1024;
+    public static final int BLOCK_SIZE = 512;
     Integer[] PM;
-    boolean[] freeFrames;
+    Integer[][] D;
+    ArrayList<Boolean> freeFrames;
     public vmDemandPaging(){
-        PM = new Integer[524288];
+        //Init PM
+        PM = new Integer[PM_SIZE];
         Arrays.fill(PM, 0);
-        freeFrames = new boolean[1024];
+
+        //Init freeFrames
+        freeFrames = new ArrayList<Boolean>();
         //Frames 0 and 1 are empty
-        freeFrames[0] = false;
-        freeFrames[1] = false;
+        freeFrames.set(0, false);
+        freeFrames.set(1,false);
+
+        //Init Disk
+        D = new Integer[TOTAL_BLOCKS][BLOCK_SIZE];
+
     }
 
     public void init(List<String> ST, List<String> PT){
@@ -29,7 +39,7 @@ public class vmDemandPaging {
             //PM[2s+1] = f (frame location)
             PM[2*s+1] = f;
             //Frame f is no longer free
-            freeFrames[f] = false;
+            freeFrames.set(f, false);
             if(DEBUG){
                 String message = String.format("SegmentSize: %d, FrameSize: %d", PM[2*s], PM[2*s+1]);
                 System.out.println(message);
@@ -43,7 +53,7 @@ public class vmDemandPaging {
             int pageEntryAddress = PM[2*s+1]*512+p;
             PM[pageEntryAddress] = f;
             //Frame f is no longer free
-            freeFrames[f] = false;
+            freeFrames.set(f, false);
             if(DEBUG){
                 String message = String.format("PageFrame: %d", PM[PM[2*s+1]*512+p]);
                 System.out.println(message);
@@ -55,19 +65,25 @@ public class vmDemandPaging {
         int w = getW(va);
         int p = getP(va);
         int pw = getPW(va);
-        if(pw >= PM.get(2*s)){
+        if(pw >= PM[2*s]){
             //report error: VA is outside the segment boundary
             return -1;
         }
 
-        if(PM.get((2*s)+1) < 0){
+        if(PM[(2*s)+1] < 0){
             //page fault: PT is not resident
             //Allocate free frame f1 using list of free frames
+            //Find free frame f1 + replace absent frame with newly allocated frame
+            int nextFreeFrame = freeFrames.indexOf(true);
+            int b = PM[(2*s)+1];
+            PM[(2*s)+1] = nextFreeFrame;
             //Update list of free frames
-            //Read disk block b = |PM[2s + 1]| into PM staring at location f1*512
+            freeFrames.set(nextFreeFrame, false);
+            //copy PT from block b = |PM[2s + 1]| into PM starting at location f1*512
+            readBlock(b, location);
             //PM[2s + 1] = f1: Update ST entry
         }
-        if(PM.get(PM.get(2*s + 1)*512 + p) < 0){
+        if(PM[PM[2*s + 1]*512 + p] < 0){
             //page fault: page is not resident
             //Allocate free frame f2 using list of free frames
             //Update list of free frames
@@ -79,18 +95,20 @@ public class vmDemandPaging {
     }
 
     public void readBlock (){}
+    public int readPA(int PA){
+        return PM[PA];
+    }
     public int getS(int va){
-        return va;
+        return va >>> 18;
     }
     public int getW(int va){
-        return va;
+        return va & 511;
     }
     public int getP(int va){
-        return va;
+        va = va >>> 9;
+        return va & 511;
     }
     public int getPW(int va){
-        return va;
+        return va & 262143;
     }
-
-
 }

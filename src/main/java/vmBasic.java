@@ -5,10 +5,11 @@ import java.util.List;
 
 public class vmBasic {
     static final boolean DEBUG = true;
+    static final int PM_SIZE = 524288;
     //PM size = 524,288 integers
     Integer[] PM;
     public vmBasic(){
-        PM = new Integer[524288];
+        PM = new Integer[PM_SIZE];
         Arrays.fill(PM, 0);
     }
     public void init(List<String> ST, List<String> PT) {
