@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import Helper.Derive;
 
 
 public class vmBasic {
@@ -44,10 +45,11 @@ public class vmBasic {
     }
 
     public int translateVA(int va){
-        int s = getS(va);
-        int w = getW(va);
-        int p = getP(va);
-        int pw = getPW(va);
+        Derive d = new Derive(va);
+        int s = d.getS(va);
+        int w = d.getW(va);
+        int p = d.getP(va);
+        int pw = d.getPW(va);
 
         if(DEBUG){
             String message = String.format("s:%d, w:%d, p:%d, pw:%d, ST_size: %d", s, w, p, pw, PM[2*s]);
@@ -68,23 +70,9 @@ public class vmBasic {
         int page_address = page_frame*512;
         //PA = PM[PM[2s+1]*512+p]*512 + w
         return page_address + w;
-
      }
 
-    public int readPA(int PA){
+    public int readPA(int PA) {
         return PM[PA];
-    }
-    public int getS(int va){
-        return va >>> 18;
-    }
-    public int getW(int va){
-        return va & 511;
-    }
-    public int getP(int va){
-        va = va >>> 9;
-        return va & 511;
-    }
-    public int getPW(int va){
-        return va & 262143;
     }
 }
