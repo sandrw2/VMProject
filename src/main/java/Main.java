@@ -5,18 +5,18 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        //startVMBasic(args);
+        startVMBasic(args);
         startVMDemandPaging(args);
     }
 
     public static void startVMBasic(String[] args){
         //create output file
-        String filePath = "output-nodp.txt";
+        String filePath = "output-no-dp.txt";
         BufferedWriter writer = createWriter(filePath);
 
         vmBasic basicVM = new vmBasic();
-        String initFilePath = "sample-init-nodp.txt";
-        String commandFilePath = "sample-input-nodp.txt";
+        String initFilePath = "init-no-dp.txt";
+        String commandFilePath = "input-no-dp.txt";
         try {
             // Initialize PM
             BufferedReader initBufferedReader = new BufferedReader(new FileReader(initFilePath));
@@ -63,8 +63,8 @@ public class Main {
         BufferedWriter writer = createWriter(filePath);
 
         vmDemandPaging VMdp = new vmDemandPaging();
-        String initFilePath = "sample-init-dp.txt";
-        String commandFilePath = "sample-input-dp.txt";
+        String initFilePath = "init-dp.txt";
+        String commandFilePath = "input-dp.txt";
         try {
             // Initialize PM
             BufferedReader initBufferedReader = new BufferedReader(new FileReader(initFilePath));
