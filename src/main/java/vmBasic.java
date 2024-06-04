@@ -5,13 +5,13 @@ import Helper.Derive;
 
 
 public class vmBasic {
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
     static final int PM_SIZE = 524288;
     //PM size = 524,288 integers
-    Integer[] PM;
+    int[] PM;
     public vmBasic(){
-        PM = new Integer[PM_SIZE];
-        Arrays.fill(PM, 0);
+        //implcitly filled with 0s
+        PM = new int[PM_SIZE];
     }
     public void init(List<String> ST, List<String> PT) {
 
@@ -24,7 +24,7 @@ public class vmBasic {
             //PM[2s+1] = f (frame location)
             PM[2*s+1] = f;
             if(DEBUG){
-                String message = String.format("SegmentSize: %d, FrameSize: %d", PM[2*s], PM[2*s+1]);
+                String message = String.format("SegmentSize: %d, Frame: %d", PM[2*s], PM[2*s+1]);
                 System.out.println(message);
             }
         }
@@ -53,7 +53,7 @@ public class vmBasic {
 
         if(DEBUG){
             String message = String.format("s:%d, w:%d, p:%d, pw:%d, ST_size: %d", s, w, p, pw, PM[2*s]);
-            System.out.print(message);
+            System.out.println(message);
         }
         //ST size = PM[2s]
         int ST_size = PM[2*s];

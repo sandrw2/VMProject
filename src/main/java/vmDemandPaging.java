@@ -5,33 +5,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import Helper.Derive;
+import java.util.Collections;
 
 public class vmDemandPaging {
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
     public static final int PM_SIZE = 524288;
     public static final int TOTAL_BLOCKS = 1024;
     public static final int BLOCK_SIZE = 512;
-    Integer[] PM;
-    Integer[][] D;
+
+    public static final int TOTAL_FRAMES = 1024;
+    int[] PM;
+    int[][] D;
     ArrayList<Boolean> freeFrames;
     public vmDemandPaging(){
-        //Init PM
-        PM = new Integer[PM_SIZE];
-        Arrays.fill(PM, 0);
+        //Init PM: Implicitly filled with 0s
+        PM = new int[PM_SIZE];
 
         //Init freeFrames
-        freeFrames = new ArrayList<Boolean>();
+        freeFrames = new ArrayList<>(Collections.nCopies(TOTAL_FRAMES, true));
+
         //Frames 0 and 1 are empty
         freeFrames.set(0, false);
         freeFrames.set(1,false);
 
-        //Init Disk
-        D = new Integer[TOTAL_BLOCKS][BLOCK_SIZE];
+        //Init Disk: Implicitly filled with 0s
+        D = new int[TOTAL_BLOCKS][BLOCK_SIZE];
 
     }
 
     public void init(List<String> ST, List<String> PT){
-
         //Case 1: PT resides in mem, page resides in mem
         //Case 2: PT resides in mem, page does not reside in mem
         //Case 3: PT does not reside in mem, page resides in mem
@@ -44,8 +46,13 @@ public class vmDemandPaging {
             PM[2*s] = z;
             //PM[2s+1] = f (frame location)
             PM[2*s+1] = f;
+            //update freeFrame
+            if(f > 0){
+                //Only update freeFrame if frame is taken up in PM
+                freeFrames.set(f, false);
+            }
             if(DEBUG){
-                String message = String.format("SegmentSize: %d, FrameSize: %d", PM[2*s], PM[2*s+1]);
+                String message = String.format("SegmentSize: %d, Frame: %d", PM[2*s], PM[2*s+1]);
                 System.out.println(message);
             }
         }
@@ -61,21 +68,29 @@ public class vmDemandPaging {
                 //PM[PM[2s+1]*512+p] = f
                 pageEntryAddress = PM[2*s+1]*512+p;
                 PM[pageEntryAddress] = f;
+                if(DEBUG){
+                    String message = String.format("PM[%d] = PageFrame: %d", pageEntryAddress, PM[pageEntryAddress]);
+                    System.out.println(message);
+                }
             }else{
                 //Case 3: PT does not reside in mem, page resides in mem
                 //Case 4: PT does not reside in mem, page does not reside in mem
                 //D[|PM[2s+1]|][p] = f
                 pageEntryAddress = Math.abs(PM[2*s+1]);
                 D[pageEntryAddress][p] = f;
+                if(DEBUG){
+                    String message = String.format("D[%d][%d] = PageFrame: %d", pageEntryAddress, p ,D[pageEntryAddress][p]);
+                    System.out.println(message);
+                }
+            }
+            if(f > 0){
+                //Only update freeFrame if frame is taken up in PM
+                freeFrames.set(f, false);
             }
 
-            if(DEBUG){
-                String message = String.format("PageFrame: %d", PM[PM[2*s+1]*512+p]);
-                System.out.println(message);
-            }
         }
     }
-    public int vaTranslate(int va){
+    public int translateVA(int va){
         Derive derive = new Derive(va);
         int s = derive.getS(va);
         int w = derive.getW(va);
@@ -84,6 +99,10 @@ public class vmDemandPaging {
         int b;
         if(pw >= PM[2*s]){
             //report error: VA is outside the segment boundary
+            if(DEBUG){
+                String message = String.format("VA is outside the segment boundary - pw: %d, PM[%d]: %d", pw, 2*s, (PM[2*s]));
+                System.out.println(message);
+            }
             return -1;
         }
 
@@ -101,6 +120,9 @@ public class vmDemandPaging {
             readBlock(b, PTBlock);
             //PM[2s + 1] = f1: Update ST entry
             PM[(2*s)+1] = f1;
+            if(DEBUG){
+                String message = String.format("Copied Block %d to PM[%d] with frame %d", b, (2*s)+1, PM[(2*s)+1]);
+            }
         }
         if(PM[PM[2*s + 1]*512 + p] < 0){
             //page fault: page is not resident
@@ -132,6 +154,20 @@ public class vmDemandPaging {
     public void readBlock (int b, int m){
         //copy D[b] --> PM[m]
         System.arraycopy(D[b], 0, PM, m, BLOCK_SIZE);
+        if (DEBUG) {
+            String message_1 = String.format("From D[%d]: %s", b, Arrays.toString(D[b]));
+            System.out.println(message_1);
+            String message_2 = String.format("To PM[%d]: %s", m, Arrays.toString(Arrays.copyOfRange(PM, m, m+BLOCK_SIZE-1)));
+            System.out.println(message_2);
+        }
+
+    }
+    public int readPA(int PA) {
+        if(DEBUG){
+            String message = String.format("read: PM[%d] = %d", PA, PM[PA]);
+            System.out.println(message);
+        }
+        return PM[PA];
     }
 
 }
