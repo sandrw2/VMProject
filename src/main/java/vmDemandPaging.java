@@ -50,6 +50,10 @@ public class vmDemandPaging {
             if(f > 0){
                 //Only update freeFrame if frame is taken up in PM
                 freeFrames.set(f, false);
+                if(DEBUG){
+                    String message = String.format("next free frame: %d", freeFrames.indexOf(true));
+                    System.out.println(message);
+                }
             }
             if(DEBUG){
                 String message = String.format("SegmentSize: %d, Frame: %d", PM[2*s], PM[2*s+1]);
@@ -86,6 +90,10 @@ public class vmDemandPaging {
             if(f > 0){
                 //Only update freeFrame if frame is taken up in PM
                 freeFrames.set(f, false);
+                if(DEBUG){
+                    String message = String.format("next free frame: %d", freeFrames.indexOf(true));
+                    System.out.println(message);
+                }
             }
 
         }
@@ -111,6 +119,10 @@ public class vmDemandPaging {
             //Allocate free frame f1 using list of free frames
             //Find free frame f1
             int f1 = freeFrames.indexOf(true);
+            if(DEBUG){
+                String message = String.format("next free frame: %d", f1);
+                System.out.println(message);
+            }
             //Update list of free frames
             freeFrames.set(f1, false);
             //copy PT from block b = |PM[2s + 1]| into PM starting at location f1*512
@@ -129,6 +141,10 @@ public class vmDemandPaging {
             //Allocate free frame f2 using list of free frames
             //Find free frame f2
             int f2 = freeFrames.indexOf(true);
+            if(DEBUG){
+                String message = String.format("next free frame: %d", f2);
+                System.out.println(message);
+            }
             //Update list of free frames
             freeFrames.set(f2, false);
             //Read disk block b = |PM[PM[2s + 1]*512 + p]| into PM staring at f2*512
